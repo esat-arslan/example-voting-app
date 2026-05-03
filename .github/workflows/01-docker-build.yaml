@@ -1,5 +1,5 @@
 ---
-name: 01 Basic Docker Build
+name: 01 Multi-Service Parallel Build
 
 on:
   push:
@@ -7,27 +7,53 @@ on:
   pull_request:
 
 jobs:
-  build-image:
-    name: Build Image
+  build-vote:
+    name: Build Vote Service
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
+      - uses: actions/checkout@v4
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Docker Build
+      - name: Build and Push Vote
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./vote
           push: ${{ github.event_name != 'pull_request' }}
-          tags: | 
-            esatarslan/allhands22:latest
-            esatarslan/allhands22:${{ github.sha }}
+          tags: esatarslan/vote:latest,esatarslan/vote:${{ github.sha }}
+
+  build-result:
+    name: Build Result Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Result
+        uses: docker/build-push-action@v6
+        with:
+          context: ./result
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: esatarslan/result:latest,esatarslan/result:${{ github.sha }}
+
+  build-worker:
+    name: Build Worker Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Worker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./worker
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: esatarslan/worker:latest,esatarslan/worker:${{ github.sha }}
