@@ -48,6 +48,7 @@ jobs:
       - name: Build and Push to GHCR
         uses: docker/build-push-action@v6
         with:
+          context: ./vote
           push: true
           tags: ghcr.io/esatarslan/vote:${{ github.run_id }}
           cache-from: type=gha
