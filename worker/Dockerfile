@@ -3,7 +3,7 @@
 # (errors common in arm/v7 32bit) https://github.com/dotnet/dotnet-docker/issues/1537
 # https://hub.docker.com/_/microsoft-dotnet
 # hadolint ignore=DL3029
-FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:5.0 as build
+FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:5.0 AS build
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
@@ -21,7 +21,7 @@ COPY . .
 
 FROM build AS test
 RUN dotnet test --no-restore --verbosity normal
-FROM build as publish
+FROM build AS publish
 RUN  case ${TARGETPLATFORM} in \
          "linux/amd64")  ARCH=x64  ;; \
          "linux/arm64")  ARCH=arm64  ;; \
@@ -34,6 +34,6 @@ FROM mcr.microsoft.com/dotnet/runtime:5.0
 
 WORKDIR /app
 
-COPY --from=build /app .
+COPY --from=publish /app .
 
 ENTRYPOINT ["dotnet", "Worker.dll"]
