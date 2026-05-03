@@ -53,7 +53,7 @@ jobs:
         with:
           context: ./vote
           push: true
-          tags: ghcr.io/esat-arslan/vote:${{ github.run_id }}
+          tags: ghcr.io/${{ github.repository_owner }}/vote:${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: AbsaOSS/k3d-action@v2
@@ -61,7 +61,6 @@ jobs:
           cluster-name: "test-cluster-1"
           args: >-
             --agents 1
-            --non-blocking
             --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
       - name: Smoke test deployment in k3d kubernetes
         run: |
@@ -69,7 +68,7 @@ jobs:
             --docker-server=https://ghcr.io \
             --docker-username=${{ github.actor }} \
             --docker-password=${{ secrets.GITHUB_TOKEN }}
-          export TESTING_IMAGE=ghcr.io/esat-arslan/vote:"$GITHUB_RUN_ID"
+          export TESTING_IMAGE=ghcr.io/${{ github.repository_owner }}/vote:"$GITHUB_RUN_ID"
           envsubst < manifests/deployment.yaml | kubectl apply -f -
           kubectl rollout status deployment myapp
           kubectl exec deploy/myapp -- curl --fail localhost:80
