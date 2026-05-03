@@ -19,12 +19,26 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: esatarslan/vote
+          flavor: |
+            latest = false
+          tags: |
+            type=raw,value=04
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=ref,event=pr
+            type=ref,event=branch
+            type=semver,pattern={{version}}
       - name: Build and Push Vote
         uses: docker/build-push-action@v6
         with:
           context: ./vote
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: esatarslan/vote:latest,esatarslan/vote:${{ github.sha }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -40,12 +54,26 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: esatarslan/result
+          flavor: |
+            latest = false
+          tags: |
+            type=raw,value=04
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=ref,event=pr
+            type=ref,event=branch
+            type=semver,pattern={{version}}
       - name: Build and Push Result
         uses: docker/build-push-action@v6
         with:
           context: ./result
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: esatarslan/result:latest,esatarslan/result:${{ github.sha }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -61,11 +89,25 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: esatarslan/worker
+          flavor: |
+            latest = false
+          tags: |
+            type=raw,value=04
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=ref,event=pr
+            type=ref,event=branch
+            type=semver,pattern={{version}}
       - name: Build and Push Worker
         uses: docker/build-push-action@v6
         with:
           context: ./worker
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: esatarslan/worker:latest,esatarslan/worker:${{ github.sha }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
