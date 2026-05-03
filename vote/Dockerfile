@@ -1,5 +1,5 @@
 # Using official python runtime base image
-FROM python:3.9-slim
+FROM python:3.9-slim AS base
 
 # add curl for healthcheck, add apache2-utils for seeding with "ab"
 RUN apt-get update \
@@ -15,6 +15,11 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+FROM base AS test
+COPY . .
+RUN echo "Hello test"
+
+FROM base AS final
 # Copy our code from the current folder to /app inside the container
 COPY . .
 

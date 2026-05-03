@@ -18,6 +18,10 @@ RUN case ${TARGETPLATFORM} in \
     && dotnet restore -r linux-${ARCH}
 
 COPY . .
+
+FROM build AS test
+RUN dotnet test --no-restore --verbosity normal
+FROM build as publish
 RUN  case ${TARGETPLATFORM} in \
          "linux/amd64")  ARCH=x64  ;; \
          "linux/arm64")  ARCH=arm64  ;; \

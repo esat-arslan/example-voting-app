@@ -1,4 +1,4 @@
-FROM node:18-slim
+FROM node:18-slim AS base
 
 # add curl for healthcheck
 RUN apt-get update && \
@@ -16,6 +16,11 @@ RUN npm ci && \
  npm cache clean --force && \
  mv /usr/local/app/node_modules /node_modules
 
+FROM base AS test
+COPY . .
+RUN echo 'just testing'
+
+FROM base AS final
 COPY . .
 
 ENV PORT=80
